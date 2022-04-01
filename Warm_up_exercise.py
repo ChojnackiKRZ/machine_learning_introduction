@@ -4,17 +4,18 @@ Created on Sun Mar 13 17:47:58 2022
 
 @author: krzys
 """
-import pandas as pd
-import seaborn as sn
-import matplotlib.pyplot as plt
-import seaborn as sns
-import os
-from scipy.stats.stats import pearsonr
-import numpy as np
-from typing import List
-
 
 def main():
+    
+    import pandas as pd
+    import seaborn as sn
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import os
+    from scipy.stats.stats import pearsonr
+    import numpy as np
+    from typing import List
+
 
     path = r"C:\Users\krzys\Desktop\data science\IV semestr\machine_learning\machine_learning_introduction"
     os.chdir(path)

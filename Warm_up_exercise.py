@@ -103,27 +103,21 @@ def main():
             gridspec_kw={"wspace": 0.08, "hspace": 0.20},
         )
         
+        
         # for i in range (0, len (x_axis) * len (y_axis)):
-        # x_axis_number = len (x_axis)
-        # y_axis_number = len (y_axis)
-        # for x in x_axis_number:
-        #     for y in y_axis_number:
-        axs[0, 0].scatter(datasets[0]["x"], datasets[0]["y"])
-        axs[0, 0].set_title("Axis [0, 0]")
-        axs[0, 1].scatter(datasets[1]["x"], datasets[1]["y"])
-        axs[0, 1].set_title("Axis [0, 1]")            
-        axs[0, 2].scatter(datasets[2]["x"], datasets[2]["y"])
-        axs[0, 2].set_title("Axis [0, 2]")
-        axs[0, 3].scatter(datasets[3]["x"], datasets[3]["y"])
-        axs[0, 3].set_title("Axis [0, 3]")
-        axs[1, 0].scatter(datasets[4]["x"], datasets[4]["y"])
-        axs[1, 0].set_title("Axis [1, 0]")
-        axs[1, 1].scatter(datasets[5]["x"], datasets[5]["y"])
-        axs[1, 1].set_title("Axis [1, 1]")
-        axs[1, 2].scatter(datasets[6]["x"], datasets[6]["y"])
-        axs[1, 2].set_title("Axis [1, 2]")
-        axs[1, 3].scatter(datasets[7]["x"], datasets[7]["y"])
-        axs[1, 3].set_title("Axis [1, 3]")
+        x_axis_number = len (x_axis)
+        y_axis_number = len (y_axis)
+        
+        def generator():
+            for i in range (0,x_axis_number * y_axis_number):
+                yield i
+                
+        gen = generator()
+        for x in range (0, x_axis_number):
+            for y in range (0, y_axis_number):
+                v = next(gen)
+                axs[x, y].scatter(datasets[v]["x"], datasets[v]["y"])
+                axs[x, y].set_title(f"Axis [{x}, {y}]")
 
         n = 0
         for ax in axs.flat:

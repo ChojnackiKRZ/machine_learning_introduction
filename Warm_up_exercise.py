@@ -11,18 +11,13 @@ import seaborn as sns
 import os
 from scipy.stats.stats import pearsonr
 import numpy as np
+from typing import List
 
 
 path = (
-    r"C:\Users\krzys\Desktop\data science\IV semestr\machine_learning\warm_up_excercise"
+    r"C:\Users\krzys\Desktop\data science\IV semestr\machine_learning\machine_learning_introduction"
 )
 os.chdir(path)
-
-try:
-    os.mkdir(os.path.join(path, "plots"))
-    os.mkdir(os.path.join(path, "csv"))
-except FileExistsError:
-    pass
 
 x = [10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5]
 y1 = [8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68]
@@ -39,66 +34,95 @@ datasetscsv = {}
 datasets = {}
 
 
-df = pd.DataFrame()
-df_main = pd.DataFrame()
+def stat_data(x_axis: List[float] or List[int], y_axis: List[float] or List[int]) -> dict:
+    '''
+    Function takes arguments for x_axis and y_axis as list of ints or floats,
+    calculates: 1) std, 2) var, 3) mean for y, 4) corr for x and y and saves
+    it as csv in path in separate folder.
+    Also returns dict with the same values as saved to csv.
+    '''
+    
+    if type(x_axis) != list or type(y_axis) != list:
+        raise TypeError('arguments must be lists of ints or floats')
+    try:
+        os.mkdir(os.path.join(path, "csv"))
+    except FileExistsError:
+        pass
+    
+    df = pd.DataFrame()
+    df_main = pd.DataFrame()
+    
+    n = 0 
+    for x in x_axis:
+        for y in y_axis:
+            datasetscsv[n] = {
+                "std_y": round(np.std(y), 2),
+                "var_y": round(np.var(y), 2),
+                "mean_y": round(np.mean(y), 2),
+                "corr": round(pearsonr(x, y)[0], 2),
+                "x": str(x),
+                "y": str(y),
+            }
+            df = pd.DataFrame(data = datasetscsv[n], index=[n])
+            df_main = pd.concat([df_main, df])
+            df_main.to_csv("csv\data_stats.csv", index=False)
+            n += 1
+    
+    n = 0
+    for i in datasetscsv.items():
+        datasetscsv[n]['x'] = datasetscsv[n]['x'].replace('[', '').replace(']', '')
+        datasetscsv[n]['y'] = datasetscsv[n]['y'].replace('[', '').replace(']', '')
+        datasetscsv[n]['x'] = list(map(float, datasetscsv[n]['x'].split(',')))
+        datasetscsv[n]['y'] = list(map(float, datasetscsv[n]['y'].split(',')))
+        n = n + 1
+    return datasetscsv
+    
+    return datasetscsv
+datasets = stat_data(list_x, list_y)
 
-n = 0
-for x in list_x:
-    for y in list_y:
-        datasetscsv[n] = {
-            "std_y": round(np.std(y), 2),
-            "var_y": round(np.var(y), 2),
-            "mean_y": round(np.mean(y), 2),
-            "corr": round(pearsonr(x, y)[0], 2),
-            "x": str(x),
-            "y": str(y),
-        }
-        datasets[n] = {
-            "std_y": round(np.std(y), 2),
-            "var_y": round(np.var(y), 2),
-            "mean_y": round(np.mean(y), 2),
-            "corr": round(pearsonr(x, y)[0], 2),
-            "x": x,
-            "y": y,
-        }
-        df = pd.DataFrame(data=datasetscsv[n], index=[n])
-        df_main = pd.concat([df_main, df])
-        df_main.to_csv("csv\data_stats.csv", index=False)
+
+def scatter_plots():
+    try:
+        os.mkdir(os.path.join(path, "plots"))
+    except FileExistsError:
+        pass
+   
+    fig, axs = plt.subplots(
+        2,
+        2,
+        sharex=True,
+        sharey=True,
+        figsize=(8, 6),
+        gridspec_kw={"wspace": 0.08, "hspace": 0.20},
+    )
+    axs[0, 0].scatter(datasets[0]["x"], datasets[0]["y"])
+    axs[0, 0].set_title("Axis [0, 0]")
+    axs[0, 1].scatter(datasets[1]["x"], datasets[1]["y"])
+    axs[0, 1].set_title("Axis [0, 1]")
+    axs[1, 0].scatter(datasets[2]["x"], datasets[2]["y"])
+    axs[1, 0].set_title("Axis [1, 0]")
+    axs[1, 1].scatter(datasets[3]["x"], datasets[3]["y"])
+    axs[1, 1].set_title("Axis [1, 1]")
+    
+    n = 0
+    for ax in axs.flat:
+        ax.label_outer()
+        stats = (
+            f"$\\mu$ = {np.mean(datasets[n]['y']):.2f}\n"
+            f"$\\sigma$ = {np.std(datasets[n]['y']):.2f}\n"
+            f"$r$ = {np.corrcoef(datasets[n]['x'], datasets[n]['y'])[0][1]:.2f}"
+        )
+        bbox = dict(boxstyle="round", fc="blanchedalmond", ec="orange")
+        ax.text(
+            0.95,
+            0.07,
+            stats,
+            fontsize=9,
+            bbox=bbox,
+            transform=ax.transAxes,
+            horizontalalignment="right",
+        )
         n += 1
+    fig.savefig("plots\scatter.jpg")
 
-fig, axs = plt.subplots(
-    2,
-    2,
-    sharex=True,
-    sharey=True,
-    figsize=(8, 6),
-    gridspec_kw={"wspace": 0.08, "hspace": 0.20},
-)
-axs[0, 0].scatter(datasets[0]["x"], datasets[0]["y"])
-axs[0, 0].set_title("Axis [0, 0]")
-axs[0, 1].scatter(datasets[1]["x"], datasets[1]["y"])
-axs[0, 1].set_title("Axis [0, 1]")
-axs[1, 0].scatter(datasets[2]["x"], datasets[2]["y"])
-axs[1, 0].set_title("Axis [1, 0]")
-axs[1, 1].scatter(datasets[3]["x"], datasets[3]["y"])
-axs[1, 1].set_title("Axis [1, 1]")
-
-for ax in axs.flat:
-    ax.label_outer()
-    stats = (
-        f"$\\mu$ = {np.mean(y):.2f}\n"
-        f"$\\sigma$ = {np.std(y):.2f}\n"
-        f"$r$ = {np.corrcoef(x, y)[0][1]:.2f}"
-    )
-    bbox = dict(boxstyle="round", fc="blanchedalmond", ec="orange")
-    ax.text(
-        0.95,
-        0.07,
-        stats,
-        fontsize=9,
-        bbox=bbox,
-        transform=ax.transAxes,
-        horizontalalignment="right",
-    )
-
-fig.savefig("plots\scatter.jpg")
+scatter_plots()

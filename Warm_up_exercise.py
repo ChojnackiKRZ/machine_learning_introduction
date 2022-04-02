@@ -8,7 +8,6 @@ Created on Sun Mar 13 17:47:58 2022
 import pandas as pd
 import seaborn as sn
 import matplotlib.pyplot as plt
-import seaborn as sns
 import os
 from scipy.stats.stats import pearsonr
 import numpy as np
@@ -47,10 +46,7 @@ def main():
 
         if type(x_axis) != list or type(y_axis) != list:
             raise TypeError("arguments must be lists of ints or floats")
-        try:
-            os.mkdir(os.path.join(path, "csv"))
-        except FileExistsError:
-            pass
+        os.makedirs("csv", exist_ok = False)
         df = pd.DataFrame()
         df_main = pd.DataFrame()
 
@@ -89,11 +85,7 @@ def main():
         """
 
         datasets = stat_data(x_axis, y_axis)
-
-        try:
-            os.mkdir(os.path.join(path, "plots"))
-        except FileExistsError:
-            pass
+        os.makedirs("plots", exist_ok = False)
         fig, axs = plt.subplots(
             len (x_axis),
             len (y_axis),
